@@ -7,11 +7,13 @@ import com.google.common.collect.Lists;
 import dev.corviraptor.mixin.AccessorEntry;
 import dev.corviraptor.mixin.InvokerCommandFunctionManager;
 import dev.corviraptor.mixin.InvokerExecution;
+import dev.corviraptor.mixin.MixinExecution;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.function.CommandFunction;
 import net.minecraft.server.function.CommandFunctionManager;
-import net.minecraft.server.function.CommandFunctionManager.Execution;
+
+import java.lang.reflect.Field;
 
 public final class ExecutionUtility {
     /**
@@ -23,9 +25,12 @@ public final class ExecutionUtility {
      * @param source the command source
      * @param function the function
      */
-    static int run(Execution execution, CommandFunctionManager manager, CommandFunction function,
-            ServerCommandSource source) {
-        
+    public static int run(
+            MixinExecution executionMixin, CommandFunction function,
+            ServerCommandSource source) 
+    {
+        CommandFunctionManager.Execution execution = (CommandFunctionManager.Execution) (Object) executionMixin;
+        CommandFunctionManager manager = executionMixin.getManager();
         InvokerExecution executionInvoker = (InvokerExecution) execution;
         Deque<CommandFunctionManager.Entry> queue = executionInvoker.getQueue();
         InvokerCommandFunctionManager managerInvoker = (InvokerCommandFunctionManager)manager;
@@ -69,4 +74,29 @@ public final class ExecutionUtility {
 
         return j;
     }
+	
+    /**
+     * HERE BE REFLECTION! I will not make this generic because it is Evil!
+     * 
+     * @return The instance of the class that surrounds {@link execution}
+     * 
+     * @param execution The instance of the inner {@link CommandFunctionManager.Execution} class that we
+     * want to find the outer {@link CommandFunctionManager} instance of
+     * 
+     * TODO: if there's somehow a type-safe way of doing this i'll cry
+     */
+	public static CommandFunctionManager GetManager(CommandFunctionManager.Execution execution) {
+        try {
+            // Get the implicit reference from the inner to the outer instance
+            // ... make it accessible, as it has default visibility
+            Field field = CommandFunctionManager.Execution.class.getDeclaredField("this$0");
+            field.setAccessible(true);
+
+            // Dereference and cast it
+            CommandFunctionManager manager = (CommandFunctionManager) field.get(execution);
+            return manager;
+        } catch (Exception e) {
+            throw new AssertionError(new ReflectiveOperationException(e));
+        }
+	}
 }

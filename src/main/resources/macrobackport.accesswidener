@@ -1,9 +1,17 @@
 accessWidener v1 named
 
+# Classes
+
 accessible class net/minecraft/server/function/CommandFunctionManager
+
 accessible class net/minecraft/server/function/CommandFunctionManager$Execution
 
+# Fields
+
 mutable field net/minecraft/server/function/CommandFunctionManager NO_TRACE_IN_FUNCTION_TEXT Lnet/minecraft/text/Text;
+
 mutable field net/minecraft/server/function/CommandFunctionManager execution Lnet/minecraft/server/function/CommandFunctionManager$Execution;
+
+# Methods
 
 accessible method net/minecraft/server/function/CommandFunctionManager$Execution <init> (Lnet/minecraft/server/function/CommandFunctionManager;Lnet/minecraft/server/function/CommandFunctionManager$Tracer;)V

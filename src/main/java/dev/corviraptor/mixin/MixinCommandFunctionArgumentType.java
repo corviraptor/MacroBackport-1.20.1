@@ -22,9 +22,10 @@ public abstract class MixinCommandFunctionArgumentType implements ArgumentType<F
 	/**
 	 * @author corviraptor
 	 * @reason This is being used to test if this mixin will work. In addition,
-	 * this may be the best way to do this since this is a `public static`
-	 * method, however I need to learn more about mixins before I can be
-	 * sure.
+	 *         this may be the best way to do this since this is a `public static`
+	 *         method, however I need to learn more about mixins before I can be
+	 *         sure.
+	 *         TODO: come back to this and make sure its okay
 	 */
 	@Overwrite
 	public CommandFunctionArgumentType.FunctionArgument parse(StringReader stringReader) throws CommandSyntaxException {
