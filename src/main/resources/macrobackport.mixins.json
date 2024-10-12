@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "dev.corviraptor.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "InvokerCommandFunctionArgumentType",
+    "InvokerCommandFunctionManager",
+    "InvokerDataCommand",
+    "InvokerExecution",
+    "MixinCommandFunction",
+    "MixinCommandFunctionArgumentType",
+    "MixinFunctionCommand"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
