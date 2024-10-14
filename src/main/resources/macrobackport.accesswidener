@@ -6,6 +6,8 @@ accessible class net/minecraft/server/function/CommandFunctionManager
 
 accessible class net/minecraft/server/function/CommandFunctionManager$Execution
 
+accessible class net/minecraft/server/function/CommandFunction$Element
+
 # Fields
 
 mutable field net/minecraft/server/function/CommandFunctionManager NO_TRACE_IN_FUNCTION_TEXT Lnet/minecraft/text/Text;

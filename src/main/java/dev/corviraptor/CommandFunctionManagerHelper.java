@@ -14,7 +14,7 @@ import dev.corviraptor.mixin.InvokerCommandFunctionManager;
 import dev.corviraptor.mixin.InvokerExecution;
 
 @Mixin(CommandFunctionManager.class)
-public final class CommandFunctionManagerUtility {
+public final class CommandFunctionManagerHelper {
     /**
      * Executes a function. This may have two cases: new or recursive.
      * 
@@ -47,7 +47,7 @@ public final class CommandFunctionManagerUtility {
         @Nullable NbtCompound arguments)
     throws MacroException {
 
-        CommandFunction commandFunction = CommandFunctionUtility.withMacroReplaced(
+        CommandFunction commandFunction = CommandFunctionHelper.withMacroReplaced(
             function, arguments, manager.getDispatcher(), source
         );
         

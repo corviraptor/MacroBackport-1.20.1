@@ -4,9 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "AccessorEntry",
-    "InvokerCommandFunctionArgumentType",
     "InvokerCommandFunctionManager",
-    "InvokerDataCommand",
     "InvokerExecution",
     "MixinCommandFunction",
     "MixinCommandFunctionArgumentType",

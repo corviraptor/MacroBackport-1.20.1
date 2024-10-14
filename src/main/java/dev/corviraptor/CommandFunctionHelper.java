@@ -21,7 +21,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.function.CommandFunction;
 import net.minecraft.util.Identifier;
 
-public final class CommandFunctionUtility {
+public final class CommandFunctionHelper {
 	public static CommandFunction withMacroReplaced(CommandFunction function, @Nullable NbtCompound arguments,
 			CommandDispatcher<ServerCommandSource> dispatcher, ServerCommandSource source) throws MacroException {
 		return function;

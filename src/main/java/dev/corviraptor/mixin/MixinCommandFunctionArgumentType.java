@@ -7,6 +7,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 
+import dev.corviraptor.CommandFunctionArgumentTypeHelper;
+
 import java.util.Collection;
 import java.util.Collections;
 import net.minecraft.command.argument.CommandFunctionArgumentType;
@@ -14,9 +16,12 @@ import net.minecraft.command.argument.CommandFunctionArgumentType.FunctionArgume
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Identifier;
 import net.minecraft.server.function.CommandFunction;
+
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
+@Debug(export = true)
 @Mixin(CommandFunctionArgumentType.class)
 public abstract class MixinCommandFunctionArgumentType implements ArgumentType<FunctionArgument> {
 	/**
@@ -28,7 +33,7 @@ public abstract class MixinCommandFunctionArgumentType implements ArgumentType<F
 	 *         TODO: come back to this and make sure its okay
 	 */
 	@Overwrite
-	public CommandFunctionArgumentType.FunctionArgument parse(StringReader stringReader) throws CommandSyntaxException {
+	public FunctionArgument parse(StringReader stringReader) throws CommandSyntaxException {
 		if (stringReader.canRead() && stringReader.peek() == '#') {
 			stringReader.skip();
 			final Identifier identifier = Identifier.fromCommandInput(stringReader);
@@ -36,14 +41,14 @@ public abstract class MixinCommandFunctionArgumentType implements ArgumentType<F
 				@Override
 				public Collection<CommandFunction> getFunctions(CommandContext<ServerCommandSource> context)
 						throws CommandSyntaxException {
-					return InvokerCommandFunctionArgumentType.invokeGetFunctionTag(context, identifier);
+					return CommandFunctionArgumentTypeHelper.getFunctionTag(context, identifier);
 				}
 
 				@Override
 				public Pair<Identifier, Either<CommandFunction, Collection<CommandFunction>>> getFunctionOrTag(
 						CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 					return Pair.of(identifier,
-							Either.right(InvokerCommandFunctionArgumentType.invokeGetFunctionTag(context, identifier)));
+							Either.right(CommandFunctionArgumentTypeHelper.getFunctionTag(context, identifier)));
 				}
 			};
 		} else {
@@ -52,14 +57,14 @@ public abstract class MixinCommandFunctionArgumentType implements ArgumentType<F
 				@Override
 				public Collection<CommandFunction> getFunctions(CommandContext<ServerCommandSource> context)
 						throws CommandSyntaxException {
-					return Collections.singleton(InvokerCommandFunctionArgumentType.invokeGetFunction(context, identifier));
+					return Collections.singleton(CommandFunctionArgumentTypeHelper.getFunction(context, identifier));
 				}
 
 				@Override
 				public Pair<Identifier, Either<CommandFunction, Collection<CommandFunction>>> getFunctionOrTag(
 						CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 					return Pair.of(identifier,
-							Either.left(InvokerCommandFunctionArgumentType.invokeGetFunction(context, identifier)));
+							Either.left(CommandFunctionArgumentTypeHelper.getFunction(context, identifier)));
 				}
 			};
 		}

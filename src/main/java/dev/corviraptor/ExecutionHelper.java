@@ -15,7 +15,7 @@ import net.minecraft.server.function.CommandFunctionManager;
 
 import java.lang.reflect.Field;
 
-public final class ExecutionUtility {
+public final class ExecutionHelper {
     /**
      * Handles a new case in {@link CommandFunctionManager#execute(CommandFunction,
      * ServerCommandSource, CommandFunctionManager.Tracer, NbtCompound)}.
@@ -30,7 +30,7 @@ public final class ExecutionUtility {
             ServerCommandSource source) 
     {
         CommandFunctionManager.Execution execution = (CommandFunctionManager.Execution) (Object) executionMixin;
-        CommandFunctionManager manager = executionMixin.getManager();
+        CommandFunctionManager manager = executionMixin.getEnclosingManager();
         InvokerExecution executionInvoker = (InvokerExecution) execution;
         Deque<CommandFunctionManager.Entry> queue = executionInvoker.getQueue();
         InvokerCommandFunctionManager managerInvoker = (InvokerCommandFunctionManager)manager;

@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.server.command.FunctionCommand;
 import net.minecraft.server.command.ServerCommandSource;
-import dev.corviraptor.FunctionCommandUtility;
+import dev.corviraptor.FunctionCommandHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
@@ -20,6 +20,6 @@ public class MixinFunctionCommand {
 	 */
 	@Overwrite
 	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-		FunctionCommandUtility.register(dispatcher);
+		FunctionCommandHelper.register(dispatcher);
 	}
 }

@@ -6,9 +6,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
-import dev.corviraptor.mixin.InvokerDataCommand;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import java.util.Collection;
+import java.util.Iterator;
+
 import net.minecraft.command.DataCommandObject;
 import net.minecraft.command.argument.CommandFunctionArgumentType;
 import net.minecraft.command.argument.NbtCompoundArgumentType;
@@ -24,10 +26,7 @@ import net.minecraft.server.command.FunctionCommand;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.mutable.MutableObject;
 
-/*
- * FunctionCommand was essentially entirely changed in 1.20.2.
- */
-public final class FunctionCommandUtility {
+public final class FunctionCommandHelper {
     private static final DynamicCommandExceptionType ARGUMENT_NOT_COMPOUND_EXCEPTION = new DynamicCommandExceptionType(
         argument -> Text.translatable("commands.function.error.argument_not_compound", argument)
 	);
@@ -40,17 +39,16 @@ public final class FunctionCommandUtility {
 					literalArgumentBuilder,
 					builder -> builder.executes(
 							context -> execute(
-									(ServerCommandSource) context.getSource(),
-									CommandFunctionArgumentType.getFunctions(context, "name"),
-									objectType.getObject(context).getNbt()))
+								(ServerCommandSource) context.getSource(),
+								CommandFunctionArgumentType.getFunctions(context, "name"),
+								objectType.getObject(context).getNbt()))
 							.then(
-									CommandManager.argument("path", NbtPathArgumentType.nbtPath())
-											.executes(
-													context -> execute(
-															context.getSource(),
-															CommandFunctionArgumentType.getFunctions(context, "name"),
-															getArgument(NbtPathArgumentType.getNbtPath(context, "path"),
-																	objectType.getObject(context))))));
+								CommandManager.argument("path", NbtPathArgumentType.nbtPath())
+									.executes(
+											context -> execute(
+												context.getSource(),
+												CommandFunctionArgumentType.getFunctions(context, "name"),
+												getArgument(NbtPathArgumentType.getNbtPath(context, "path"), objectType.getObject(context))))));
 		}
 
 		dispatcher.register(
@@ -76,7 +74,7 @@ public final class FunctionCommandUtility {
 
 	private static NbtCompound getArgument(NbtPathArgumentType.NbtPath path, DataCommandObject object)
 			throws CommandSyntaxException {
-		NbtElement nbtElement = InvokerDataCommand.invokeGetNbt(path, object);
+		NbtElement nbtElement = getNbt(path, object);
 		if (nbtElement instanceof NbtCompound) {
 			return (NbtCompound) nbtElement;
 		} else {
@@ -92,7 +90,7 @@ public final class FunctionCommandUtility {
 
 		for (CommandFunction commandFunction : functions) {
 			try {
-				FunctionCommandUtility.FunctionResult functionResult = execute(source, commandFunction, arguments);
+				FunctionCommandHelper.FunctionResult functionResult = execute(source, commandFunction, arguments);
 				i += functionResult.value();
 				bl |= functionResult.isReturn();
 				bl2 = true;
@@ -123,23 +121,37 @@ public final class FunctionCommandUtility {
 		return i;
 	}
 
-	public static FunctionCommandUtility.FunctionResult execute(ServerCommandSource source, CommandFunction function,
+	public static FunctionCommandHelper.FunctionResult execute(ServerCommandSource source, CommandFunction function,
 			@Nullable NbtCompound arguments) throws MacroException {
-		MutableObject<FunctionCommandUtility.FunctionResult> mutableObject = new MutableObject<>();
+		MutableObject<FunctionCommandHelper.FunctionResult> mutableObject = new MutableObject<>();
 		
 		CommandFunctionManager manager = source.getServer().getCommandFunctionManager();
 
-		int i = CommandFunctionManagerUtility.execute(
+		int i = CommandFunctionManagerHelper.execute(
 						manager,
 						function,
 						source.withSilent().withMaxLevel(2).withReturnValueConsumer(
-								value -> mutableObject.setValue(new FunctionCommandUtility.FunctionResult(value, true))),
+								value -> mutableObject.setValue(new FunctionCommandHelper.FunctionResult(value, true))),
 						null,
 						arguments);
-		FunctionCommandUtility.FunctionResult functionResult = mutableObject.getValue();
-		return functionResult != null ? functionResult : new FunctionCommandUtility.FunctionResult(i, false);
+		FunctionCommandHelper.FunctionResult functionResult = mutableObject.getValue();
+		return functionResult != null ? functionResult : new FunctionCommandHelper.FunctionResult(i, false);
 	}
 
 	public static record FunctionResult(int value, boolean isReturn) {
+	}
+
+	// i know this is stupid i dont care anymore
+	// this stuff is originally from net.minecraft.server.command.DataCommand
+	private static final SimpleCommandExceptionType GET_MULTIPLE_EXCEPTION = new SimpleCommandExceptionType(Text.translatable("commands.data.get.multiple"));
+	public static NbtElement getNbt(NbtPathArgumentType.NbtPath path, DataCommandObject object) throws CommandSyntaxException {
+		Collection<NbtElement> collection = path.get(object.getNbt());
+		Iterator<NbtElement> iterator = collection.iterator();
+		NbtElement nbtElement = (NbtElement)iterator.next();
+		if (iterator.hasNext()) {
+			throw GET_MULTIPLE_EXCEPTION.create();
+		} else {
+			return nbtElement;
+		}
 	}
 }
